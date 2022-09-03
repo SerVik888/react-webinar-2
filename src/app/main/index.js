@@ -19,8 +19,6 @@ function Main() {
     { backForward: true }
   )
 
-  const { t } = useTranslate()
-
   return (
     <Layout>
       <TopContainer />
