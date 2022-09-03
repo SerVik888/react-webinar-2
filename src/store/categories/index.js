@@ -1,36 +1,41 @@
 import StateModule from '../module'
+import qs from '../../utils/search-params'
 
 /**
- * Состояние категорий
+ * Состояние товара
  */
-class CatalogCategories extends StateModule {
+class CategoriesState extends StateModule {
   /**
    * Начальное состояние
    * @return {Object}
    */
   initState() {
     return {
-      categories: [],
-      params: {
-        limit: 11,
-      },
+      items: [],
       waiting: false,
     }
   }
 
   /**
-   * Получение категорий
-   * @return {Promise<void>}
+   * Загрузка списка товаров
    */
-  async getCategories(limit = 11) {
-    const response = await fetch(`/api/v1/categories?limit=${limit}`)
-    const json = await response.json()
+  async load() {
+    this.setState({ waiting: true, items: [] }, 'Ожидание загрузки категорий')
 
-    this.setState({
-      ...this.getState(),
-      categories: json.result.items,
+    const params = { fields: '_id,title,parent(_id)', limit: '*' }
+    const json = await this.services.api.request({
+      url: `/api/v1/categories/${qs.stringify(params)}`,
     })
+
+    // Товар загружен успешно
+    this.setState(
+      {
+        items: json.result.items,
+        waiting: false,
+      },
+      'Катеории загружены'
+    )
   }
 }
 
-export default CatalogCategories
+export default CategoriesState

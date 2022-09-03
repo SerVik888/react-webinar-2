@@ -1,39 +1,34 @@
 import React from 'react'
+import useStore from '../../hooks/use-store'
 import useSelector from '../../hooks/use-selector'
-import useTranslate from '../../hooks/use-translate'
-import Tools from '../../containers/tools'
-import Layout from '../../components/layout'
-import LayoutFlex from '../../components/layout-flex'
-import LocaleSelect from '../../containers/locale-select'
-import AuthContainer from '../../containers/auth-container'
-import ProfileInfo from '../../components/profile-info'
+import useInit from '../../hooks/use-init'
 import Spinner from '../../components/spinner'
+import Layout from '../../components/layout'
+import TopContainer from '../../containers/top'
+import HeadContainer from '../../containers/head'
+import ToolsContainer from '../../containers/tools'
+import ProfileCard from '../../components/profile-card'
 
 function Profile() {
-  const { t } = useTranslate()
+  const store = useStore()
 
   const select = useSelector((state) => ({
-    user: state.profile.user,
-    auth: state.profile.auth,
+    profile: state.profile.data,
     waiting: state.profile.waiting,
+    exists: state.session.exists,
   }))
 
+  useInit(async () => {
+    await store.get('profile').load()
+  }, [])
+
   return (
-    <Layout
-      topHead={
-        <LayoutFlex flex='end'>
-          <AuthContainer />
-        </LayoutFlex>
-      }
-      head={
-        <LayoutFlex flex='between'>
-          <h1>{t('title')}</h1>
-          <LocaleSelect />
-        </LayoutFlex>
-      }>
-      <Tools />
+    <Layout>
+      <TopContainer />
+      <HeadContainer />
+      <ToolsContainer />
       <Spinner active={select.waiting}>
-        <ProfileInfo user={select.user} t={t} />
+        <ProfileCard data={select.profile} />
       </Spinner>
     </Layout>
   )

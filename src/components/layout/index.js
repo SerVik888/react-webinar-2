@@ -3,12 +3,12 @@ import { cn as bem } from '@bem-react/classname'
 import propTypes from 'prop-types'
 import './style.css'
 
-function Layout({ topHead, head, children }) {
+function Layout({ head, top, children }) {
   const cn = bem('Layout')
 
   return (
     <div className={cn()}>
-      {topHead && <div className={cn('topHead')}>{topHead}</div>}
+      {top ? <div className={cn('top')}>{top}</div> : null}
       <div className={cn('head')}>{head}</div>
       <div className={cn('content')}>{children}</div>
     </div>
@@ -16,7 +16,6 @@ function Layout({ topHead, head, children }) {
 }
 
 Layout.propTypes = {
-  topHead: propTypes.node,
   head: propTypes.node,
   children: propTypes.node,
 }

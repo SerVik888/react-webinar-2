@@ -1,30 +1,29 @@
 import React from 'react'
 import useSelector from '../hooks/use-selector'
 import { Routes, Route } from 'react-router-dom'
+import useInit from '../hooks/use-init'
+import useStore from '../hooks/use-store'
 import Main from './main'
 import Basket from './basket'
 import Article from './article'
-import Profile from './profile'
 import Login from './login'
-import useStore from '../hooks/use-store'
-import useInit from '../hooks/use-init'
-import RequreAuth from '../hoc/requre-auth'
+import Profile from './profile'
+import Protected from '../containers/protected'
+import { useSelector as useSelectorRedux } from 'react-redux'
 
 /**
  * Приложение
  * @return {React.ReactElement} Виртуальные элементы React
  */
 function App() {
-  const modal = useSelector((state) => state.modals.name)
   const store = useStore()
 
-  useInit(
-    async () => {
-      await store.get('profile').getProfile()
-    },
-    [],
-    { backForward: false }
-  )
+  useInit(async () => {
+    await store.get('session').remind()
+  })
+
+  //const modal = useSelector(state => state.modals.name);
+  const modal = useSelectorRedux((state) => state.modals.name)
 
   return (
     <>
@@ -35,9 +34,9 @@ function App() {
         <Route
           path={'/profile'}
           element={
-            <RequreAuth>
+            <Protected redirect={'/login'}>
               <Profile />
-            </RequreAuth>
+            </Protected>
           }
         />
       </Routes>

@@ -5,44 +5,31 @@ import useTranslate from '../../hooks/use-translate'
 import Select from '../../components/select'
 import Input from '../../components/input'
 import LayoutFlex from '../../components/layout-flex'
-import useInit from '../../hooks/use-init'
-import { createList } from '../../utils/create-list'
-import { createTreeCategory } from '../../utils/create-tree-category'
+import { categories } from '../../store/exports'
+import listToTree from '../../utils/list-to-tree'
+import treeToList from '../../utils/tree-to-list'
 
 function CatalogFilter() {
   const store = useStore()
-
-  useInit(
-    async () => {
-      await store.get('categories').getCategories()
-    },
-    [],
-    { backForward: true }
-  )
 
   const select = useSelector((state) => ({
     sort: state.catalog.params.sort,
     query: state.catalog.params.query,
     category: state.catalog.params.category,
-    categories: state.categories.categories,
+    categories: state.categories.items,
   }))
-
-  const tree = createTreeCategory(select.categories)
 
   const { t } = useTranslate()
 
   const callbacks = {
-    // Поиск по категориям
-    onSearchCategory: useCallback((category) => {
-      store.get('catalog').setParams({ category })
-      store.get('catalog').resetPage()
-    }, []),
     // Сортировка
     onSort: useCallback((sort) => store.get('catalog').setParams({ sort }), []),
     // Поиск
     onSearch: useCallback((query) => store.get('catalog').setParams({ query, page: 1 }), []),
     // Сброс
     onReset: useCallback(() => store.get('catalog').resetParams(), []),
+    // Фильтр по категории
+    onCategory: useCallback((category) => store.get('catalog').setParams({ category }), []),
   }
 
   // Опции для полей
@@ -56,18 +43,23 @@ function CatalogFilter() {
       ],
       []
     ),
+
     categories: useMemo(
       () => [
         { value: '', title: 'Все' },
-        ...createList(tree).map((el) => ({ value: el.value, title: el.title })),
+        ...treeToList(listToTree(select.categories), (item, level) => ({
+          value: item._id,
+          title: '- '.repeat(level) + item.title,
+        })),
       ],
       [select.categories]
     ),
   }
+
   return (
-    <LayoutFlex flex='start'>
+    <LayoutFlex flex='start' indent='big'>
       <Select
-        onChange={callbacks.onSearchCategory}
+        onChange={callbacks.onCategory}
         value={select.category}
         options={options.categories}
       />

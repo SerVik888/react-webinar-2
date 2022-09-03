@@ -2,19 +2,22 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './app'
-import Store from './store'
-import { StoreContext } from './store/context'
+import Services from './services'
+import ServicesProvider from './provider'
+import config from './config'
+import { Provider } from 'react-redux'
 
-// Внешнее состояние
-const store = new Store()
+// Менеджер сервисов
+const services = new Services(config)
 
 const root = createRoot(document.getElementById('root'))
 
-// Первый рендер (один раз)
 root.render(
-  <StoreContext.Provider value={store}>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </StoreContext.Provider>
+  <Provider store={services.storeRedux}>
+    <ServicesProvider services={services}>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </ServicesProvider>
+  </Provider>
 )
